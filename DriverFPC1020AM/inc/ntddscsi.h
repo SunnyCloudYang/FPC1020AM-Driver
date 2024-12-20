@@ -97,7 +97,7 @@ typedef struct _SCSI_PASS_THROUGH {
     UCHAR DataIn;
     ULONG DataTransferLength;
     ULONG TimeOutValue;
-    ULONG_PTR DataBufferOffset;
+    UL_PTR DataBufferOffset;
     ULONG SenseInfoOffset;
     UCHAR Cdb[16];
 }SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;

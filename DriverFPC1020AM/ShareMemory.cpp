@@ -8,7 +8,7 @@ using namespace std;
 
 /*************************************************************************************
 FuncName  :SHAREDMEMORY::SHAREDMEMORY()
-Desc      :���캯�����������ڴ�
+Desc      :
 Input     :None
 Output    :None
 **************************************************************************************/
@@ -22,7 +22,6 @@ SharedMemory::SharedMemory(const LPCWSTR &name) {
 		name);        //name of mapping object
 
 	if (hShareMem) {
-		//  ӳ�������ͼ���õ������ڴ�ָ�룬��������
 		pBuf = (LPTSTR)MapViewOfFile(
 			hShareMem,           //handle to map object
 			FILE_MAP_ALL_ACCESS, // read/write permission
@@ -31,7 +30,6 @@ SharedMemory::SharedMemory(const LPCWSTR &name) {
 			MEMORY_SIZE);
 		//cout << "memory size:" << MEMORY_SIZE << endl;
 
-		// ��ӳ��ʧ���˳�
 		if (pBuf == NULL)
 		{
 			std::cout << "Could not map view of framebuffer file." << GetLastError() << std::endl;
@@ -50,22 +48,22 @@ SharedMemory::SharedMemory(const LPCWSTR &name) {
 
 /*************************************************************************************
 FuncName  :SHAREDMEMORY::~SHAREDMEMORY()
-Desc      :���������ͷ�
+Desc      :
 Input     :None
 Output    :None
 **************************************************************************************/
 SharedMemory::~SharedMemory() {
 	std::cout << "unmap shared addr." << std::endl;
-	UnmapViewOfFile(pBuf); //�ͷţ�
+	UnmapViewOfFile(pBuf);
 	CloseHandle(hShareMem);
 }
 
 /*************************************************************************************
 FuncName  :void SHAREDMEMORY::SendMat(cv::Mat img, char indexAddress)
-Desc      :����Mat����
+Desc      :
 Input     :
-	Mat img               ����ͼ��
-	char indexAddress     �����ڴ�����ʼλ�ã���ֻ��һ·��Ƶ����ƫ��
+	Mat img               
+	char indexAddress     
 Output    :None
 **************************************************************************************/
 void SharedMemory::SendMat(void* img, UINT img_width, UINT img_height, char indexAddress) {
@@ -82,10 +80,10 @@ void SharedMemory::SendMat(void* img, UINT img_width, UINT img_height, char inde
 
 /*************************************************************************************
 FuncName  :void SHAREDMEMORY::SendStr(cv::Mat img, char indexAddress)
-Desc      :����str����
+Desc      :
 Input     :
-	Mat img               ����ͼ��
-	char indexAddress     �����ڴ�����ʼλ�ã���ֻ��һ·��Ƶ����ƫ��
+	Mat img
+	char indexAddress
 Output    :None
 **************************************************************************************/
 void SharedMemory::SendStr(const char data[]) {

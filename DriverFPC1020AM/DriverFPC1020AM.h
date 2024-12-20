@@ -1,8 +1,10 @@
 #pragma once
+#define _AFXDLL
 #include <sstream>
 #include "Define.h"
 #include "Communication.h"
 #include "ShareMemory.h"
+
 
 enum class ConnectResult {
 	SUCCESS,

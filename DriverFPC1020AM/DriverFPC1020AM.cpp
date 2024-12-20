@@ -2,38 +2,37 @@
 #include <iostream>
 #include <filesystem>
 
-BYTE	g_FpImageBuf[300 * 300]; // max size : 300*300
-int		g_nImageWidth;
-int		g_nImageHeight;
+BYTE g_FpImageBuf[300 * 300]; // max size : 300*300
+int g_nImageWidth;
+int g_nImageHeight;
 
 int SaveBMP8(
-	const char* filename,
+	const char *filename,
 	int p_nWidth,
 	int p_nHeight,
-	unsigned char* p_pbImageData);
+	unsigned char *p_pbImageData);
 
-std::wstring CreateSharedMemoryName(int deviceID) {
+std::wstring CreateSharedMemoryName(int deviceID)
+{
 	std::wstringstream wss;
 	wss << L"FPC1020AM_SHARED_MEMORY_" << deviceID;
 	return wss.str();
 }
 
-DriverFPC1020AM::DriverFPC1020AM(int deviceID) :
-	m_nConDeviceID(deviceID),
-	m_sharedMem(CreateSharedMemoryName(deviceID).c_str())
+DriverFPC1020AM::DriverFPC1020AM(int deviceID) : m_nConDeviceID(deviceID),
+												 m_sharedMem(CreateSharedMemoryName(deviceID).c_str())
 {
-
 }
 
 ConnectResult DriverFPC1020AM::Connect()
 {
 	// Init connection.
 	if (m_clsCommu.InitConnection(
-		USB_CON_MODE,
-		"",
-		-1,
-		0,
-		m_nConDeviceID) != CONNECTION_SUCCESS)
+			USB_CON_MODE,
+			"",
+			-1,
+			0,
+			m_nConDeviceID) != CONNECTION_SUCCESS)
 	{
 		return ConnectResult::FAILED;
 	}
@@ -51,28 +50,41 @@ void DriverFPC1020AM::RunCapture()
 {
 	m_clsCommu.Run_SLEDControl(1);
 
-	int	w_nRet;
+	int w_nRet;
 	int n = 0;
 	static std::string userName;
 	static std::string fingerNumber;
+	static std::string basePath;
 	std::cout << "Please input user name: ";
 	std::cin >> userName;
 	std::cout << "Please input finger number (0-9): ";
 	std::cin >> fingerNumber;
-	
+	std::cout << "Use default path (D:\\Desktop\\æ¯•è®¾\\code\\fp-seq-stitch\\datasets\\FPC1020\\)? (Y/N): ";
+	std::string useDefaultPath;
+	std::cin >> useDefaultPath;
+	if (useDefaultPath == "N" || useDefaultPath == "n")
+	{
+		std::cout << "Please input base path: ";
+		std::cin >> basePath;
+	}
+	else
+	{
+		basePath = "D:\\Desktop\\æ¯•è®¾\\code\\fp-seq-stitch\\datasets\\FPC1020\\" + userName + "\\" + fingerNumber;
+	}
+
 	char fname[100];
-	std::string basePath = "D:\\Desktop\\±ÏÉè\\code\\fp-seq-stitch\\datasets\\FPC1020\\" + userName + "\\" + fingerNumber;
 	std::filesystem::create_directories(basePath);
 	while (1)
 	{
 		w_nRet = m_clsCommu.Run_GetImage();
-		if (w_nRet == ERR_SUCCESS) {
+		if (w_nRet == ERR_SUCCESS)
+		{
 			m_clsCommu.Run_UpImage(0, g_FpImageBuf, &g_nImageWidth, &g_nImageHeight);
 			m_sharedMem.SendMat(g_FpImageBuf, IMAGE_PRE_WIDTH, IMAGE_PRE_HEIGHT, 0);
 			sprintf_s(fname, sizeof(fname), "%s\\%d.bmp", basePath.c_str(), n++);
 			if (SaveBMP8(fname, g_nImageWidth, g_nImageHeight, g_FpImageBuf) == 0)
 			{
-				std::cout << "SaveBMP8 failed." << std::endl;
+				std::cout << "Save BMP failed." << std::endl;
 			}
 			std::cout << "New frame " << n << std::endl;
 		}
@@ -94,8 +106,8 @@ int SaveBMP8(
 	unsigned char head[1078] = {
 		/***************************/
 		// file header
-		0x42, 0x4d, // file type
-					// 0x36,0x6c,0x01,0x00, //file size***
+		0x42, 0x4d,			   // file type
+							   // 0x36,0x6c,0x01,0x00, //file size***
 		0x0, 0x0, 0x0, 0x00,   // file size***
 		0x00, 0x00,			   // reserved
 		0x00, 0x00,			   // reserved
